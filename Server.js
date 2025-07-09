@@ -29,7 +29,7 @@ app.post('/generate-ad', async (req, res) => {
             subtext,
             cta
         });
-
+        console.log('Ad image generated successfully');
         res.set('Content-Type', 'image/jpeg');
         res.send(buffer);
     } catch (error) {

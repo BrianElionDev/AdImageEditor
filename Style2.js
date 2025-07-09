@@ -1,31 +1,14 @@
-import { createCanvas, loadImage, registerFont } from "canvas";
+import { createCanvas, loadImage } from "canvas";
 import axios from "axios";
-import {Vibrant} from "node-vibrant/node";
-import path from "path";
-
-// Register Montserrat fonts
-registerFont(path.resolve("./fonts/Montserrat-Bold.ttf"), { family: "Montserrat", weight: "bold" });
-registerFont(path.resolve("./fonts/Montserrat-Regular.ttf"), { family: "Montserrat", weight: "normal" });
-registerFont(path.resolve("./fonts/Montserrat-Italic.ttf"), { family: "Montserrat", style: "italic" });
+import { Vibrant } from "node-vibrant/node";
 
 async function getVibrantWaveFill(imageBuffer) {
   const palette = await Vibrant.from(imageBuffer).getPalette();
-  const vibrant = palette.Vibrant;
-  const muted = palette.Muted;
-
-  if (!vibrant && !muted) return "#FDC830";
-
-  const rgb = vibrant ? vibrant.rgb : muted.rgb;
-  const [r, g, b] = rgb;
+  const vibrant = palette.Vibrant || palette.Muted;
+  if (!vibrant) return "#FDC830";
+  const [r, g, b] = vibrant.rgb;
   const avgBrightness = (r + g + b) / 3;
-
-  if (r > g && r > b) {
-    return "#FDBB2D";
-  } else if (avgBrightness < 120) {
-    return "#FFC107";
-  } else {
-    return "#FDC830";
-  }
+  return r > g && r > b ? "#FDBB2D" : avgBrightness < 120 ? "#FFC107" : "#FDC830";
 }
 
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -67,6 +50,7 @@ export async function generateAdImage({
   const waveHeight = height * 0.35;
   const waveTop = height - waveHeight;
 
+  // Wave background
   ctx.beginPath();
   ctx.moveTo(0, waveTop);
   ctx.bezierCurveTo(
@@ -77,11 +61,10 @@ export async function generateAdImage({
   ctx.lineTo(width, height);
   ctx.lineTo(0, height);
   ctx.closePath();
-
   ctx.fillStyle = waveColor;
   ctx.fill();
 
-  // Content drawing
+  // Text styling
   ctx.fillStyle = "#1e1e1e";
   ctx.textBaseline = "top";
 
@@ -90,17 +73,17 @@ export async function generateAdImage({
 
   // Headline
   const headlineFontSize = Math.floor(height * 0.04);
-  ctx.font = `bold ${headlineFontSize}px Montserrat`;
+  ctx.font = `bold ${headlineFontSize}px Sans`;
   cursorY = wrapText(ctx, headline, paddingX, cursorY, width - paddingX * 2, headlineFontSize * 1.3);
 
   // Subtext
-  const subFontSize = Math.floor(height * 0.032);
-  ctx.font = `${subFontSize}px Montserrat`;
+  const subFontSize = Math.floor(height * 0.03);
+  ctx.font = `${subFontSize}px Sans`;
   cursorY = wrapText(ctx, subtext, paddingX, cursorY + 10, width - paddingX * 2, subFontSize * 1.4);
 
-  // CTA button
+  // CTA Button
   const btnFontSize = Math.floor(height * 0.03);
-  ctx.font = `bold ${btnFontSize}px Montserrat`;
+  ctx.font = `bold ${btnFontSize}px Sans`;
   const textMetrics = ctx.measureText(cta);
   const btnPaddingX = 28;
   const btnPaddingY = 14;
@@ -124,6 +107,7 @@ export async function generateAdImage({
   ctx.closePath();
   ctx.fill();
 
+  // CTA text
   ctx.fillStyle = "#ffffff";
   ctx.textBaseline = "middle";
   ctx.fillText(cta, btnX + (btnWidth - textMetrics.width) / 2, btnY + btnHeight / 2);
