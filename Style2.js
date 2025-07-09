@@ -29,7 +29,7 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
   return y + lineHeight;
 }
 
-export async function generateAdImage({
+export async function generateAdImage2({
   imageUrl,
   headline = "🔥 Deal Time!",
   subtext = "Get yours today!",

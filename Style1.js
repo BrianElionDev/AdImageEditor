@@ -30,7 +30,7 @@ function wrapText(ctx, text, maxWidth, fontSize) {
   return lines;
 }
 
-export async function generateAdImage({
+export async function generateAdImage1({
   imageUrl,
   headline = "🔥 Deal Time! Best Prices Ever!",
   subtext = "Get 37% OFF premium cuts — Limited Time Only!",
