@@ -15,7 +15,7 @@ nixpkgs = [
 
 [phases.install]
 cmds = [
-  "pnpm install",
+  "pnpm install --no-frozen-lockfile",
   "fc-cache -fv",
   "fc-list | grep -i emoji || echo 'No emoji fonts found'",
   "fc-list | grep -i noto || echo 'No Noto fonts found'"
