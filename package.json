@@ -8,8 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node Server.js",
     "start": "node Server.js",
-    "build": "pnpm rebuild canvas --update-binary || pnpm install canvas",
-    "postinstall": "pnpm run build"
+    "build": "pnpm rebuild canvas --update-binary || pnpm install canvas"
   },
   "keywords": [],
   "author": "",
