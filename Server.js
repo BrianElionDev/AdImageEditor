@@ -72,20 +72,16 @@ app.post("/generate-ad", async (req, res) => {
   let generateFn;
   if (style === "Style1") {
     if (!generateAdImage1) {
-      return res
-        .status(503)
-        .json({
-          error: "Style1 is not available - canvas dependency failed to load",
-        });
+      return res.status(503).json({
+        error: "Style1 is not available - canvas dependency failed to load",
+      });
     }
     generateFn = generateAdImage1;
   } else if (style === "Style2") {
     if (!generateAdImage2) {
-      return res
-        .status(503)
-        .json({
-          error: "Style2 is not available - canvas dependency failed to load",
-        });
+      return res.status(503).json({
+        error: "Style2 is not available - canvas dependency failed to load",
+      });
     }
     generateFn = generateAdImage2;
   } else {
@@ -137,7 +133,7 @@ app.use((error, req, res, next) => {
 
 // ✅ Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Health check available at http://localhost:${PORT}/health`);
 });
