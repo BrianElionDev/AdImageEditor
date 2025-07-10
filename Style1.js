@@ -88,6 +88,14 @@ function wrapText(ctx, text, maxWidth, fontSize) {
   return lines;
 }
 
+// Remove all emoji and unicode symbols from a string
+function stripEmojis(str) {
+  return str.replace(
+    /([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF\uDC00-\uDFFF]+|[\u2011-\u26FF]|\uD83D[\uDC00-\uDE4F])/g,
+    ""
+  );
+}
+
 export async function generateAdImage1({
   imageUrl,
   headline = "🔥 Deal Time! Best Prices Ever!",
@@ -113,7 +121,8 @@ export async function generateAdImage1({
   // Headline Box
   let fontSize = Math.floor(height * 0.04);
   ctx.font = `bold ${fontSize}px Montserrat, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Arial, sans-serif`;
-  const headlineLines = wrapText(ctx, headline, maxTextWidth);
+  const cleanHeadline = stripEmojis(headline);
+  const headlineLines = wrapText(ctx, cleanHeadline, maxTextWidth);
   const headlineHeight = headlineLines.length * (fontSize + 6) + 20;
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
@@ -130,7 +139,8 @@ export async function generateAdImage1({
   // Subtext Box
   fontSize = Math.floor(height * 0.03);
   ctx.font = `italic ${fontSize}px Montserrat, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Arial, sans-serif`;
-  const subLines = wrapText(ctx, subtext, maxTextWidth);
+  const cleanSubtext = stripEmojis(subtext);
+  const subLines = wrapText(ctx, cleanSubtext, maxTextWidth);
   const subHeight = subLines.length * (fontSize + 5) + 20;
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
@@ -146,7 +156,8 @@ export async function generateAdImage1({
   // CTA Button (Bottom Center)
   const btnFontSize = Math.floor(height * 0.035);
   ctx.font = `bold ${btnFontSize}px Montserrat, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Arial, sans-serif`;
-  const textWidth = ctx.measureText(cta).width;
+  const cleanCta = stripEmojis(cta);
+  const textWidth = ctx.measureText(cleanCta).width;
   const btnPadding = 24;
   const btnWidth = textWidth + btnPadding * 2;
   const btnHeight = btnFontSize * 1.8;
@@ -174,7 +185,11 @@ export async function generateAdImage1({
 
   ctx.fillStyle = "#fff";
   ctx.textBaseline = "middle";
-  ctx.fillText(cta, btnX + (btnWidth - textWidth) / 2, btnY + btnHeight / 2);
+  ctx.fillText(
+    cleanCta,
+    btnX + (btnWidth - textWidth) / 2,
+    btnY + btnHeight / 2
+  );
 
   return canvas.toBuffer("image/jpeg");
 }

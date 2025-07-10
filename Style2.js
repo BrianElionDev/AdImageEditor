@@ -91,12 +91,24 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
   return y + lineHeight;
 }
 
+// Remove all emoji and unicode symbols from a string
+function stripEmojis(str) {
+  return str.replace(
+    /([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF\uDC00-\uDFFF]+|[\u2011-\u26FF]|\uD83D[\uDC00-\uDE4F])/g,
+    ""
+  );
+}
+
 export async function generateAdImage2({
   imageUrl,
   headline = "🔥 Deal Time!",
   subtext = "Get yours today!",
   cta = "Order Now",
 }) {
+  // Strip emojis/unicode from all text
+  const cleanHeadline = stripEmojis(headline);
+  const cleanSubtext = stripEmojis(subtext);
+  const cleanCta = stripEmojis(cta);
   const imageRes = await axios.get(imageUrl, { responseType: "arraybuffer" });
   const imageBuffer = imageRes.data;
   const bgImage = await loadImage(imageBuffer);
@@ -141,7 +153,7 @@ export async function generateAdImage2({
   ctx.font = `bold ${headlineFontSize}px Montserrat, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Arial, sans-serif`;
   cursorY = wrapText(
     ctx,
-    headline,
+    cleanHeadline,
     paddingX,
     cursorY,
     width - paddingX * 2,
@@ -153,7 +165,7 @@ export async function generateAdImage2({
   ctx.font = `${subFontSize}px Montserrat, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Arial, sans-serif`;
   cursorY = wrapText(
     ctx,
-    subtext,
+    cleanSubtext,
     paddingX,
     cursorY + 10,
     width - paddingX * 2,
@@ -163,7 +175,7 @@ export async function generateAdImage2({
   // CTA Button
   const btnFontSize = Math.floor(height * 0.03);
   ctx.font = `bold ${btnFontSize}px Montserrat, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Arial, sans-serif`;
-  const textMetrics = ctx.measureText(cta);
+  const textMetrics = ctx.measureText(cleanCta);
   const btnPaddingX = 28;
   const btnPaddingY = 14;
   const btnWidth = textMetrics.width + btnPaddingX * 2;
@@ -195,7 +207,7 @@ export async function generateAdImage2({
   ctx.fillStyle = "#ffffff";
   ctx.textBaseline = "middle";
   ctx.fillText(
-    cta,
+    cleanCta,
     btnX + (btnWidth - textMetrics.width) / 2,
     btnY + btnHeight / 2
   );
