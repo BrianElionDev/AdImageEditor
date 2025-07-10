@@ -133,7 +133,29 @@ app.use((error, req, res, next) => {
 
 // ✅ Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Health check available at http://localhost:${PORT}/health`);
+const HOST = "0.0.0.0";
+
+console.log(`🌐 Attempting to start server on ${HOST}:${PORT}...`);
+
+const server = app.listen(PORT, HOST, () => {
+  console.log(`🚀 Server running on ${HOST}:${PORT}`);
+  console.log(`📊 Health check available at http://${HOST}:${PORT}/health`);
+
+  // Verify server is listening
+  const address = server.address();
+  console.log("📍 Server address:", address);
+});
+
+// Handle server errors
+server.on("error", (error) => {
+  console.error("❌ Server error:", error);
+  if (error.code === "EADDRINUSE") {
+    console.error(`Port ${PORT} is already in use`);
+  }
+  process.exit(1);
+});
+
+// Handle connection errors
+server.on("connection", (socket) => {
+  console.log("🔌 New connection from:", socket.remoteAddress);
 });

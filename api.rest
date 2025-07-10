@@ -23,3 +23,12 @@ Content-Type: application/json
   "cta": "Shop Now",
   "style": "Style2"
 }
+
+### Railway endpoints
+GET https://adimageeditor-production.up.railway.app/health
+
+### Railway endpoints
+GET https://adimageeditor-production.up.railway.app
+
+### Railway endpoints
+GET https://adimageeditor-production.up.railway.app/health

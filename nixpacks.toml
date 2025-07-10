@@ -1,0 +1,25 @@
+[phases.setup]
+nixpkgs = [
+  "pkg-config",
+  "cairo",
+  "libpng",
+  "pango",
+  "giflib",
+  "jpeg",
+  "fontconfig",
+  "freetype"
+]
+
+[phases.install]
+cmds = [
+  "pnpm install",
+  "pnpm rebuild canvas --update-binary"
+]
+
+[phases.build]
+cmds = [
+  "echo 'Canvas dependencies installed successfully'"
+]
+
+[start]
+cmd = "pnpm start" 
