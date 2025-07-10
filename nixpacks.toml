@@ -9,16 +9,12 @@ nixpkgs = [
   "fontconfig",
   "freetype",
   "noto-fonts-emoji",
-  "noto-fonts",
-  "fontconfig"
+  "noto-fonts"
 ]
 
 [phases.install]
 cmds = [
-  "pnpm install --no-frozen-lockfile",
-  "fc-cache -fv",
-  "fc-list | grep -i emoji || echo 'No emoji fonts found'",
-  "fc-list | grep -i noto || echo 'No Noto fonts found'"
+  "pnpm install --no-frozen-lockfile"
 ]
 
 [phases.build]
