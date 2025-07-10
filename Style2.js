@@ -1,6 +1,34 @@
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage, registerFont } from "canvas";
 import axios from "axios";
 import { Vibrant } from "node-vibrant/node";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Register Montserrat fonts
+try {
+  registerFont(path.join(__dirname, "fonts", "Montserrat-Bold.ttf"), {
+    family: "Montserrat",
+    weight: "bold",
+  });
+  registerFont(path.join(__dirname, "fonts", "Montserrat-Regular.ttf"), {
+    family: "Montserrat",
+    weight: "normal",
+  });
+  registerFont(path.join(__dirname, "fonts", "Montserrat-Italic.ttf"), {
+    family: "Montserrat",
+    weight: "normal",
+    style: "italic",
+  });
+  console.log("✅ Montserrat fonts registered successfully");
+} catch (error) {
+  console.warn(
+    "⚠️ Could not register Montserrat fonts, falling back to system fonts:",
+    error.message
+  );
+}
 
 async function getVibrantWaveFill(imageBuffer) {
   const palette = await Vibrant.from(imageBuffer).getPalette();
@@ -8,7 +36,11 @@ async function getVibrantWaveFill(imageBuffer) {
   if (!vibrant) return "#FDC830";
   const [r, g, b] = vibrant.rgb;
   const avgBrightness = (r + g + b) / 3;
-  return r > g && r > b ? "#FDBB2D" : avgBrightness < 120 ? "#FFC107" : "#FDC830";
+  return r > g && r > b
+    ? "#FDBB2D"
+    : avgBrightness < 120
+    ? "#FFC107"
+    : "#FDC830";
 }
 
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -54,9 +86,12 @@ export async function generateAdImage2({
   ctx.beginPath();
   ctx.moveTo(0, waveTop);
   ctx.bezierCurveTo(
-    width * 0.25, waveTop + 60,
-    width * 0.75, waveTop - 60,
-    width, waveTop + 40
+    width * 0.25,
+    waveTop + 60,
+    width * 0.75,
+    waveTop - 60,
+    width,
+    waveTop + 40
   );
   ctx.lineTo(width, height);
   ctx.lineTo(0, height);
@@ -73,17 +108,31 @@ export async function generateAdImage2({
 
   // Headline
   const headlineFontSize = Math.floor(height * 0.04);
-  ctx.font = `bold ${headlineFontSize}px Sans`;
-  cursorY = wrapText(ctx, headline, paddingX, cursorY, width - paddingX * 2, headlineFontSize * 1.3);
+  ctx.font = `bold ${headlineFontSize}px Montserrat, Arial, sans-serif`;
+  cursorY = wrapText(
+    ctx,
+    headline,
+    paddingX,
+    cursorY,
+    width - paddingX * 2,
+    headlineFontSize * 1.3
+  );
 
   // Subtext
   const subFontSize = Math.floor(height * 0.03);
-  ctx.font = `${subFontSize}px Sans`;
-  cursorY = wrapText(ctx, subtext, paddingX, cursorY + 10, width - paddingX * 2, subFontSize * 1.4);
+  ctx.font = `${subFontSize}px Montserrat, Arial, sans-serif`;
+  cursorY = wrapText(
+    ctx,
+    subtext,
+    paddingX,
+    cursorY + 10,
+    width - paddingX * 2,
+    subFontSize * 1.4
+  );
 
   // CTA Button
   const btnFontSize = Math.floor(height * 0.03);
-  ctx.font = `bold ${btnFontSize}px Sans`;
+  ctx.font = `bold ${btnFontSize}px Montserrat, Arial, sans-serif`;
   const textMetrics = ctx.measureText(cta);
   const btnPaddingX = 28;
   const btnPaddingY = 14;
@@ -99,7 +148,12 @@ export async function generateAdImage2({
   ctx.lineTo(btnX + btnWidth - radius, btnY);
   ctx.quadraticCurveTo(btnX + btnWidth, btnY, btnX + btnWidth, btnY + radius);
   ctx.lineTo(btnX + btnWidth, btnY + btnHeight - radius);
-  ctx.quadraticCurveTo(btnX + btnWidth, btnY + btnHeight, btnX + btnWidth - radius, btnY + btnHeight);
+  ctx.quadraticCurveTo(
+    btnX + btnWidth,
+    btnY + btnHeight,
+    btnX + btnWidth - radius,
+    btnY + btnHeight
+  );
   ctx.lineTo(btnX + radius, btnY + btnHeight);
   ctx.quadraticCurveTo(btnX, btnY + btnHeight, btnX, btnY + btnHeight - radius);
   ctx.lineTo(btnX, btnY + radius);
@@ -110,7 +164,11 @@ export async function generateAdImage2({
   // CTA text
   ctx.fillStyle = "#ffffff";
   ctx.textBaseline = "middle";
-  ctx.fillText(cta, btnX + (btnWidth - textMetrics.width) / 2, btnY + btnHeight / 2);
+  ctx.fillText(
+    cta,
+    btnX + (btnWidth - textMetrics.width) / 2,
+    btnY + btnHeight / 2
+  );
 
   return canvas.toBuffer("image/jpeg");
 }

@@ -1,6 +1,34 @@
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage, registerFont } from "canvas";
 import axios from "axios";
 import { Vibrant } from "node-vibrant/node";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Register Montserrat fonts
+try {
+  registerFont(path.join(__dirname, "fonts", "Montserrat-Bold.ttf"), {
+    family: "Montserrat",
+    weight: "bold",
+  });
+  registerFont(path.join(__dirname, "fonts", "Montserrat-Regular.ttf"), {
+    family: "Montserrat",
+    weight: "normal",
+  });
+  registerFont(path.join(__dirname, "fonts", "Montserrat-Italic.ttf"), {
+    family: "Montserrat",
+    weight: "normal",
+    style: "italic",
+  });
+  console.log("✅ Montserrat fonts registered successfully");
+} catch (error) {
+  console.warn(
+    "⚠️ Could not register Montserrat fonts, falling back to system fonts:",
+    error.message
+  );
+}
 
 async function getVibrantFill(imageBuffer) {
   const palette = await Vibrant.from(imageBuffer).getPalette();
@@ -36,7 +64,9 @@ export async function generateAdImage1({
   subtext = "Get 37% OFF premium cuts — Limited Time Only!",
   cta = "Order Now",
 }) {
-  const imageBuffer = (await axios.get(imageUrl, { responseType: "arraybuffer" })).data;
+  const imageBuffer = (
+    await axios.get(imageUrl, { responseType: "arraybuffer" })
+  ).data;
   const bgImage = await loadImage(imageBuffer);
 
   const width = bgImage.width;
@@ -52,7 +82,7 @@ export async function generateAdImage1({
 
   // Headline Box
   let fontSize = Math.floor(height * 0.04);
-  ctx.font = `bold ${fontSize}px Sans`;
+  ctx.font = `bold ${fontSize}px Montserrat, Arial, sans-serif`;
   const headlineLines = wrapText(ctx, headline, maxTextWidth);
   const headlineHeight = headlineLines.length * (fontSize + 6) + 20;
 
@@ -69,7 +99,7 @@ export async function generateAdImage1({
 
   // Subtext Box
   fontSize = Math.floor(height * 0.03);
-  ctx.font = `italic ${fontSize}px Sans`;
+  ctx.font = `italic ${fontSize}px Montserrat, Arial, sans-serif`;
   const subLines = wrapText(ctx, subtext, maxTextWidth);
   const subHeight = subLines.length * (fontSize + 5) + 20;
 
@@ -85,7 +115,7 @@ export async function generateAdImage1({
 
   // CTA Button (Bottom Center)
   const btnFontSize = Math.floor(height * 0.035);
-  ctx.font = `bold ${btnFontSize}px Sans`;
+  ctx.font = `bold ${btnFontSize}px Montserrat, Arial, sans-serif`;
   const textWidth = ctx.measureText(cta).width;
   const btnPadding = 24;
   const btnWidth = textWidth + btnPadding * 2;
@@ -99,7 +129,12 @@ export async function generateAdImage1({
   ctx.lineTo(btnX + btnWidth - 12, btnY);
   ctx.quadraticCurveTo(btnX + btnWidth, btnY, btnX + btnWidth, btnY + 12);
   ctx.lineTo(btnX + btnWidth, btnY + btnHeight - 12);
-  ctx.quadraticCurveTo(btnX + btnWidth, btnY + btnHeight, btnX + btnWidth - 12, btnY + btnHeight);
+  ctx.quadraticCurveTo(
+    btnX + btnWidth,
+    btnY + btnHeight,
+    btnX + btnWidth - 12,
+    btnY + btnHeight
+  );
   ctx.lineTo(btnX + 12, btnY + btnHeight);
   ctx.quadraticCurveTo(btnX, btnY + btnHeight, btnX, btnY + btnHeight - 12);
   ctx.lineTo(btnX, btnY + 12);
