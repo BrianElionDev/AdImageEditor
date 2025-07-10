@@ -12,7 +12,7 @@ nixpkgs = [
 
 [phases.build]
 cmds = [
-  "pnpm rebuild canvas --update-binary"
+  "pnpm rebuild canvas"
 ]
 
 [start]
