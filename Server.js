@@ -1,6 +1,25 @@
 import express from "express";
-import { generateAdImage1 } from "./Style1.js";
-import { generateAdImage2 } from "./Style2.js"; // Add more styles as needed
+
+// Try to import canvas-dependent modules with error handling
+let generateAdImage1, generateAdImage2;
+
+try {
+  const style1Module = await import("./Style1.js");
+  generateAdImage1 = style1Module.generateAdImage1;
+  console.log("✅ Style1 loaded successfully");
+} catch (error) {
+  console.error("❌ Failed to load Style1:", error.message);
+  generateAdImage1 = null;
+}
+
+try {
+  const style2Module = await import("./Style2.js");
+  generateAdImage2 = style2Module.generateAdImage2;
+  console.log("✅ Style2 loaded successfully");
+} catch (error) {
+  console.error("❌ Failed to load Style2:", error.message);
+  generateAdImage2 = null;
+}
 
 const app = express();
 app.use(express.json({ limit: "50mb" }));
@@ -19,13 +38,26 @@ app.use((req, res, next) => {
 
 // Health check endpoint
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    styles: {
+      style1: !!generateAdImage1,
+      style2: !!generateAdImage2,
+    },
+  });
 });
 
 // Routes
 app.get("/", (req, res) => {
   console.log("✅ GET /");
-  res.send("Hello from Railway Ad API");
+  res.json({
+    message: "Hello from Railway Ad API",
+    styles: {
+      style1: !!generateAdImage1,
+      style2: !!generateAdImage2,
+    },
+  });
 });
 
 app.post("/generate-ad", async (req, res) => {
@@ -39,8 +71,22 @@ app.post("/generate-ad", async (req, res) => {
 
   let generateFn;
   if (style === "Style1") {
+    if (!generateAdImage1) {
+      return res
+        .status(503)
+        .json({
+          error: "Style1 is not available - canvas dependency failed to load",
+        });
+    }
     generateFn = generateAdImage1;
   } else if (style === "Style2") {
+    if (!generateAdImage2) {
+      return res
+        .status(503)
+        .json({
+          error: "Style2 is not available - canvas dependency failed to load",
+        });
+    }
     generateFn = generateAdImage2;
   } else {
     return res.status(400).json({ error: "Invalid style selected." });
@@ -93,4 +139,5 @@ app.use((error, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Health check available at http://localhost:${PORT}/health`);
 });
