@@ -32,13 +32,32 @@ try {
 
 // Register emoji fonts for Railway
 try {
-  // Try to register Noto Color Emoji font
-  registerFont("/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf", {
-    family: "Noto Color Emoji",
-  });
-  console.log("✅ Noto Color Emoji font registered successfully");
+  // Try multiple common paths for Noto Color Emoji font
+  const emojiFontPaths = [
+    "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf",
+    "/usr/share/fonts/opentype/noto/NotoColorEmoji.ttf",
+    "/usr/share/fonts/noto/NotoColorEmoji.ttf",
+    "/usr/share/fonts/truetype/noto/NotoEmoji-Regular.ttf",
+    "/usr/share/fonts/opentype/noto/NotoEmoji-Regular.ttf",
+  ];
+
+  let emojiFontRegistered = false;
+  for (const fontPath of emojiFontPaths) {
+    try {
+      registerFont(fontPath, { family: "Noto Color Emoji" });
+      console.log(`✅ Emoji font registered successfully from: ${fontPath}`);
+      emojiFontRegistered = true;
+      break;
+    } catch (pathError) {
+      console.log(`⚠️ Could not register emoji font from: ${fontPath}`);
+    }
+  }
+
+  if (!emojiFontRegistered) {
+    console.warn("⚠️ No emoji fonts found, emojis may not render properly");
+  }
 } catch (error) {
-  console.warn("⚠️ Could not register Noto Color Emoji font:", error.message);
+  console.warn("⚠️ Could not register emoji fonts:", error.message);
 }
 
 async function getVibrantWaveFill(imageBuffer) {
@@ -119,7 +138,7 @@ export async function generateAdImage2({
 
   // Headline
   const headlineFontSize = Math.floor(height * 0.04);
-  ctx.font = `bold ${headlineFontSize}px Montserrat, "Noto Color Emoji", Arial, sans-serif`;
+  ctx.font = `bold ${headlineFontSize}px Montserrat, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Arial, sans-serif`;
   cursorY = wrapText(
     ctx,
     headline,
@@ -131,7 +150,7 @@ export async function generateAdImage2({
 
   // Subtext
   const subFontSize = Math.floor(height * 0.03);
-  ctx.font = `${subFontSize}px Montserrat, "Noto Color Emoji", Arial, sans-serif`;
+  ctx.font = `${subFontSize}px Montserrat, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Arial, sans-serif`;
   cursorY = wrapText(
     ctx,
     subtext,
@@ -143,7 +162,7 @@ export async function generateAdImage2({
 
   // CTA Button
   const btnFontSize = Math.floor(height * 0.03);
-  ctx.font = `bold ${btnFontSize}px Montserrat, "Noto Color Emoji", Arial, sans-serif`;
+  ctx.font = `bold ${btnFontSize}px Montserrat, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Arial, sans-serif`;
   const textMetrics = ctx.measureText(cta);
   const btnPaddingX = 28;
   const btnPaddingY = 14;
