@@ -30,6 +30,38 @@ try {
   );
 }
 
+// Emoji fallback mapping
+const emojiFallbacks = {
+  "🥩": "MEAT",
+  "🔥": "HOT",
+  "💯": "100%",
+  "🎉": "SALE",
+  "⚡": "FAST",
+  "⭐": "STAR",
+  "💎": "PREMIUM",
+  "🚀": "FAST",
+  "💰": "SAVE",
+  "🎯": "TARGET",
+  "🏆": "BEST",
+  "💪": "STRONG",
+  "❤️": "LOVE",
+  "👍": "GREAT",
+  "🎊": "SALE",
+  "✨": "SPECIAL",
+  "🌟": "STAR",
+  "💫": "SPECIAL",
+  "🎁": "GIFT",
+  "🎪": "SHOW",
+};
+
+function replaceEmojis(text) {
+  let result = text;
+  for (const [emoji, replacement] of Object.entries(emojiFallbacks)) {
+    result = result.replace(new RegExp(emoji, "g"), replacement);
+  }
+  return result;
+}
+
 async function getVibrantFill(imageBuffer) {
   const palette = await Vibrant.from(imageBuffer).getPalette();
   const swatch = palette.Vibrant || palette.Muted;
@@ -64,6 +96,10 @@ export async function generateAdImage1({
   subtext = "Get 37% OFF premium cuts — Limited Time Only!",
   cta = "Order Now",
 }) {
+  // Replace emojis with text alternatives
+  const processedHeadline = replaceEmojis(headline);
+  const processedSubtext = replaceEmojis(subtext);
+  const processedCta = replaceEmojis(cta);
   const imageBuffer = (
     await axios.get(imageUrl, { responseType: "arraybuffer" })
   ).data;
@@ -83,7 +119,7 @@ export async function generateAdImage1({
   // Headline Box
   let fontSize = Math.floor(height * 0.04);
   ctx.font = `bold ${fontSize}px Montserrat, Arial, sans-serif`;
-  const headlineLines = wrapText(ctx, headline, maxTextWidth);
+  const headlineLines = wrapText(ctx, processedHeadline, maxTextWidth);
   const headlineHeight = headlineLines.length * (fontSize + 6) + 20;
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
@@ -100,7 +136,7 @@ export async function generateAdImage1({
   // Subtext Box
   fontSize = Math.floor(height * 0.03);
   ctx.font = `italic ${fontSize}px Montserrat, Arial, sans-serif`;
-  const subLines = wrapText(ctx, subtext, maxTextWidth);
+  const subLines = wrapText(ctx, processedSubtext, maxTextWidth);
   const subHeight = subLines.length * (fontSize + 5) + 20;
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
@@ -116,7 +152,7 @@ export async function generateAdImage1({
   // CTA Button (Bottom Center)
   const btnFontSize = Math.floor(height * 0.035);
   ctx.font = `bold ${btnFontSize}px Montserrat, Arial, sans-serif`;
-  const textWidth = ctx.measureText(cta).width;
+  const textWidth = ctx.measureText(processedCta).width;
   const btnPadding = 24;
   const btnWidth = textWidth + btnPadding * 2;
   const btnHeight = btnFontSize * 1.8;
@@ -144,7 +180,11 @@ export async function generateAdImage1({
 
   ctx.fillStyle = "#fff";
   ctx.textBaseline = "middle";
-  ctx.fillText(cta, btnX + (btnWidth - textWidth) / 2, btnY + btnHeight / 2);
+  ctx.fillText(
+    processedCta,
+    btnX + (btnWidth - textWidth) / 2,
+    btnY + btnHeight / 2
+  );
 
   return canvas.toBuffer("image/jpeg");
 }

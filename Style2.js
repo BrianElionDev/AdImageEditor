@@ -30,6 +30,38 @@ try {
   );
 }
 
+// Emoji fallback mapping
+const emojiFallbacks = {
+  "🥩": "MEAT",
+  "🔥": "HOT",
+  "💯": "100%",
+  "🎉": "SALE",
+  "⚡": "FAST",
+  "⭐": "STAR",
+  "💎": "PREMIUM",
+  "🚀": "FAST",
+  "💰": "SAVE",
+  "🎯": "TARGET",
+  "🏆": "BEST",
+  "💪": "STRONG",
+  "❤️": "LOVE",
+  "👍": "GREAT",
+  "🎊": "SALE",
+  "✨": "SPECIAL",
+  "🌟": "STAR",
+  "💫": "SPECIAL",
+  "🎁": "GIFT",
+  "🎪": "SHOW",
+};
+
+function replaceEmojis(text) {
+  let result = text;
+  for (const [emoji, replacement] of Object.entries(emojiFallbacks)) {
+    result = result.replace(new RegExp(emoji, "g"), replacement);
+  }
+  return result;
+}
+
 async function getVibrantWaveFill(imageBuffer) {
   const palette = await Vibrant.from(imageBuffer).getPalette();
   const vibrant = palette.Vibrant || palette.Muted;
@@ -67,6 +99,10 @@ export async function generateAdImage2({
   subtext = "Get yours today!",
   cta = "Order Now",
 }) {
+  // Replace emojis with text alternatives
+  const processedHeadline = replaceEmojis(headline);
+  const processedSubtext = replaceEmojis(subtext);
+  const processedCta = replaceEmojis(cta);
   const imageRes = await axios.get(imageUrl, { responseType: "arraybuffer" });
   const imageBuffer = imageRes.data;
   const bgImage = await loadImage(imageBuffer);
@@ -111,7 +147,7 @@ export async function generateAdImage2({
   ctx.font = `bold ${headlineFontSize}px Montserrat, Arial, sans-serif`;
   cursorY = wrapText(
     ctx,
-    headline,
+    processedHeadline,
     paddingX,
     cursorY,
     width - paddingX * 2,
@@ -123,7 +159,7 @@ export async function generateAdImage2({
   ctx.font = `${subFontSize}px Montserrat, Arial, sans-serif`;
   cursorY = wrapText(
     ctx,
-    subtext,
+    processedSubtext,
     paddingX,
     cursorY + 10,
     width - paddingX * 2,
@@ -133,7 +169,7 @@ export async function generateAdImage2({
   // CTA Button
   const btnFontSize = Math.floor(height * 0.03);
   ctx.font = `bold ${btnFontSize}px Montserrat, Arial, sans-serif`;
-  const textMetrics = ctx.measureText(cta);
+  const textMetrics = ctx.measureText(processedCta);
   const btnPaddingX = 28;
   const btnPaddingY = 14;
   const btnWidth = textMetrics.width + btnPaddingX * 2;
@@ -165,7 +201,7 @@ export async function generateAdImage2({
   ctx.fillStyle = "#ffffff";
   ctx.textBaseline = "middle";
   ctx.fillText(
-    cta,
+    processedCta,
     btnX + (btnWidth - textMetrics.width) / 2,
     btnY + btnHeight / 2
   );

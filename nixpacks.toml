@@ -7,7 +7,9 @@ nixpkgs = [
   "giflib",
   "jpeg",
   "fontconfig",
-  "freetype"
+  "freetype",
+  "noto-fonts-emoji",
+  "noto-fonts"
 ]
 
 [phases.build]
