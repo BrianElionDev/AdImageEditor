@@ -30,36 +30,15 @@ try {
   );
 }
 
-// Emoji fallback mapping
-const emojiFallbacks = {
-  "🥩": "MEAT",
-  "🔥": "HOT",
-  "💯": "100%",
-  "🎉": "SALE",
-  "⚡": "FAST",
-  "⭐": "STAR",
-  "💎": "PREMIUM",
-  "🚀": "FAST",
-  "💰": "SAVE",
-  "🎯": "TARGET",
-  "🏆": "BEST",
-  "💪": "STRONG",
-  "❤️": "LOVE",
-  "👍": "GREAT",
-  "🎊": "SALE",
-  "✨": "SPECIAL",
-  "🌟": "STAR",
-  "💫": "SPECIAL",
-  "🎁": "GIFT",
-  "🎪": "SHOW",
-};
-
-function replaceEmojis(text) {
-  let result = text;
-  for (const [emoji, replacement] of Object.entries(emojiFallbacks)) {
-    result = result.replace(new RegExp(emoji, "g"), replacement);
-  }
-  return result;
+// Register emoji fonts for Railway
+try {
+  // Try to register Noto Color Emoji font
+  registerFont("/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf", {
+    family: "Noto Color Emoji",
+  });
+  console.log("✅ Noto Color Emoji font registered successfully");
+} catch (error) {
+  console.warn("⚠️ Could not register Noto Color Emoji font:", error.message);
 }
 
 async function getVibrantWaveFill(imageBuffer) {
@@ -99,10 +78,6 @@ export async function generateAdImage2({
   subtext = "Get yours today!",
   cta = "Order Now",
 }) {
-  // Replace emojis with text alternatives
-  const processedHeadline = replaceEmojis(headline);
-  const processedSubtext = replaceEmojis(subtext);
-  const processedCta = replaceEmojis(cta);
   const imageRes = await axios.get(imageUrl, { responseType: "arraybuffer" });
   const imageBuffer = imageRes.data;
   const bgImage = await loadImage(imageBuffer);
@@ -144,10 +119,10 @@ export async function generateAdImage2({
 
   // Headline
   const headlineFontSize = Math.floor(height * 0.04);
-  ctx.font = `bold ${headlineFontSize}px Montserrat, Arial, sans-serif`;
+  ctx.font = `bold ${headlineFontSize}px Montserrat, "Noto Color Emoji", Arial, sans-serif`;
   cursorY = wrapText(
     ctx,
-    processedHeadline,
+    headline,
     paddingX,
     cursorY,
     width - paddingX * 2,
@@ -156,10 +131,10 @@ export async function generateAdImage2({
 
   // Subtext
   const subFontSize = Math.floor(height * 0.03);
-  ctx.font = `${subFontSize}px Montserrat, Arial, sans-serif`;
+  ctx.font = `${subFontSize}px Montserrat, "Noto Color Emoji", Arial, sans-serif`;
   cursorY = wrapText(
     ctx,
-    processedSubtext,
+    subtext,
     paddingX,
     cursorY + 10,
     width - paddingX * 2,
@@ -168,8 +143,8 @@ export async function generateAdImage2({
 
   // CTA Button
   const btnFontSize = Math.floor(height * 0.03);
-  ctx.font = `bold ${btnFontSize}px Montserrat, Arial, sans-serif`;
-  const textMetrics = ctx.measureText(processedCta);
+  ctx.font = `bold ${btnFontSize}px Montserrat, "Noto Color Emoji", Arial, sans-serif`;
+  const textMetrics = ctx.measureText(cta);
   const btnPaddingX = 28;
   const btnPaddingY = 14;
   const btnWidth = textMetrics.width + btnPaddingX * 2;
@@ -201,7 +176,7 @@ export async function generateAdImage2({
   ctx.fillStyle = "#ffffff";
   ctx.textBaseline = "middle";
   ctx.fillText(
-    processedCta,
+    cta,
     btnX + (btnWidth - textMetrics.width) / 2,
     btnY + btnHeight / 2
   );

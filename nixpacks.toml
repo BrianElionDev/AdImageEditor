@@ -9,7 +9,14 @@ nixpkgs = [
   "fontconfig",
   "freetype",
   "noto-fonts-emoji",
-  "noto-fonts"
+  "noto-fonts",
+  "fontconfig"
+]
+
+[phases.install]
+cmds = [
+  "pnpm install",
+  "fc-cache -fv"
 ]
 
 [phases.build]
