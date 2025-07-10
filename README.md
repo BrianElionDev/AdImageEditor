@@ -141,4 +141,5 @@ A: Yes, but you must ensure all native dependencies and fonts are installed on y
 
 ## 📄 License
 
-MIT
+**POLITE NOTICE**
+- clementdevv just joined your team!
