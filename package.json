@@ -2,13 +2,14 @@
   "name": "Image Editor",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "Server.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node Server.js",
     "start": "node Server.js",
-    "postinstall": "npm rebuild canvas --update-binary"
+    "build": "npm rebuild canvas --update-binary",
+    "postinstall": "npm run build"
   },
   "keywords": [],
   "author": "",
