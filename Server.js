@@ -1,7 +1,7 @@
 import express from "express";
 
 // Try to import canvas-dependent modules with error handling
-let generateAdImage1, generateAdImage2;
+let generateAdImage1, generateAdImage2, generateAdImage3;
 
 try {
   const style1Module = await import("./Style1.js");
@@ -19,6 +19,15 @@ try {
 } catch (error) {
   console.error("❌ Failed to load Style2:", error.message);
   generateAdImage2 = null;
+}
+
+try {
+  const style3Module = await import("./Style3.js");
+  generateAdImage3 = style3Module.generateAdImage3;
+  console.log("✅ Style3 loaded successfully");
+} catch (error) {
+  console.error("❌ Failed to load Style3:", error.message);
+  generateAdImage3 = null;
 }
 
 const app = express();
@@ -44,6 +53,7 @@ app.get("/health", (req, res) => {
     styles: {
       style1: !!generateAdImage1,
       style2: !!generateAdImage2,
+      style3: !!generateAdImage3
     },
   });
 });
@@ -56,6 +66,7 @@ app.get("/", (req, res) => {
     styles: {
       style1: !!generateAdImage1,
       style2: !!generateAdImage2,
+      style3: !!generateAdImage3  
     },
   });
 });
@@ -84,8 +95,18 @@ app.post("/generate-ad", async (req, res) => {
       });
     }
     generateFn = generateAdImage2;
+  } else if (style === "Style3") {  // 👈 New condition
+    if (!generateAdImage3) {
+      return res.status(503).json({
+        error: "Style3 is not available - canvas dependency failed to load",
+      });
+    }
+    generateFn = generateAdImage3;
   } else {
-    return res.status(400).json({ error: "Invalid style selected." });
+    return res.status(400).json({ 
+      error: "Invalid style selected.",
+      available_styles: ["Style1", "Style2", "Style3"]  // 👈 Updated list
+    });
   }
 
   // Set timeout for the entire request
@@ -106,18 +127,19 @@ app.post("/generate-ad", async (req, res) => {
     });
 
     clearTimeout(timeout);
-    console.log("✅ Ad image generated");
+    console.log(`✅ ${style} ad image generated`);  // 👈 More specific log
     res.set("Content-Type", "image/jpeg");
     res.set("Cache-Control", "public, max-age=3600");
     res.send(buffer);
   } catch (error) {
     clearTimeout(timeout);
-    console.error("❌ Error generating ad image:", error);
+    console.error(`❌ Error generating ${style} ad image:`, error);  // 👈 Style-specific error
 
     if (!res.headersSent) {
       res.status(500).json({
         error: "Internal Server Error",
         message: error.message,
+        style: style  // 👈 Include failing style in response
       });
     }
   }
